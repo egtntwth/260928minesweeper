@@ -221,6 +221,7 @@
              font-size: 10px;
         }
 
+        /* Flag Styling */
         .flag::after {
             content: '🚩';
             font-size: 10px;
@@ -389,6 +390,7 @@
 
         <!-- Minefield Area -->
         <div id="minefield-container">
+            <!-- oncontextmenu="return false;" prevents standard right-click menu -->
             <div id="minefield" oncontextmenu="return false;">
                 <!-- Cells will be generated here -->
             </div>
@@ -427,7 +429,7 @@
         const DIFFICULTIES = {
             beginner: { rows: 9, cols: 9, mines: 10 },
             intermediate: { rows: 16, cols: 16, mines: 40 },
-            expert: { rows: 16, cols: 30, mines: 99 } // Note: Standard expert is 16 rows, 30 cols
+            expert: { rows: 16, cols: 30, mines: 99 }
         };
 
         let currentDifficulty = 'beginner';
@@ -453,10 +455,6 @@
             win: '😎'
         };
 
-        /**
-         * STREAMING_CHUNK:Initializing the game board based on difficulty...
-         * Initialize or reset the game
-         */
         function initGame() {
             const config = DIFFICULTIES[currentDifficulty];
             gameStatus = 'ready';
@@ -483,7 +481,7 @@
                         c: c,
                         isMine: false,
                         isRevealed: false,
-                        isFlagged: false,
+                        isFlagged: false, // FLAG STATE
                         neighborMines: 0
                     });
                 }
@@ -493,15 +491,10 @@
             renderBoard();
         }
 
-        /**
-         * Update the digital displays (timer, mine count)
-         */
         function updateDisplay(element, value) {
-            // Handle negative numbers for mine count if too many flags
             let strVal;
             if (value < 0) {
                  strVal = "-" + Math.abs(value).toString().padStart(2, '0');
-                 // Ensure it fits in 3 chars, limit to -99
                  if(value < -99) strVal = "-99";
             } else {
                  strVal = value.toString().padStart(3, '0');
@@ -510,10 +503,6 @@
             element.textContent = strVal;
         }
 
-        /**
-         * STREAMING_CHUNK:Rendering the grid and attaching event listeners to cells...
-         * Render the HTML grid based on the board state
-         */
         function renderBoard() {
             const config = DIFFICULTIES[currentDifficulty];
             minefieldEl.innerHTML = '';
@@ -532,10 +521,12 @@
                     cell.dataset.r = r;
                     cell.dataset.c = c;
                     
-                    // Event Listeners for interaction
+                    // Mouse events
                     cell.addEventListener('mousedown', handleCellMouseDown);
                     cell.addEventListener('mouseup', handleCellMouseUp);
                     cell.addEventListener('mouseleave', handleCellMouseLeave);
+                    
+                    // RIGHT CLICK (FLAG) EVENT LISTENER
                     cell.addEventListener('contextmenu', (e) => {
                         e.preventDefault(); // Prevent default browser context menu
                         handleRightClick(r, c);
@@ -546,9 +537,6 @@
             }
         }
 
-        /**
-         * STREAMING_CHUNK:Handling mouse interactions for the 'ooh' face effect...
-         */
         function handleCellMouseDown(e) {
             if (gameStatus !== 'ready' && gameStatus !== 'playing') return;
             // Left click only
@@ -557,8 +545,9 @@
                 const r = parseInt(e.target.dataset.r);
                 const c = parseInt(e.target.dataset.c);
                 const cellData = board[r][c];
+                // Do not show press effect if flagged
                 if (!cellData.isRevealed && !cellData.isFlagged) {
-                     e.target.classList.add('active'); // Visual press down
+                     e.target.classList.add('active'); 
                 }
             }
         }
@@ -579,16 +568,12 @@
             const r = parseInt(e.target.dataset.r);
             const c = parseInt(e.target.dataset.c);
 
-            // Left click (0) or Middle click/Both buttons simulation for chord (1/2 depending on browser, usually handled differently)
+            // Left click (0) execution
             if (e.button === 0) {
                 handleLeftClick(r, c);
             }
         }
 
-        /**
-         * STREAMING_CHUNK:Placing mines and calculating neighbor counts on first click...
-         * Place mines randomly, avoiding the first clicked cell
-         */
         function placeMines(firstR, firstC) {
             const config = DIFFICULTIES[currentDifficulty];
             let minesToPlace = config.mines;
@@ -630,13 +615,10 @@
             return count;
         }
 
-        /**
-         * STREAMING_CHUNK:Core gameplay logic: revealing cells and handling flood fill...
-         * Handle Left Click (Reveal)
-         */
         function handleLeftClick(r, c) {
             const cellData = board[r][c];
 
+            // Ignore if revealed or FLAGGED
             if (cellData.isRevealed || cellData.isFlagged) return;
 
             if (firstClick) {
@@ -650,9 +632,6 @@
             checkWinCondition();
         }
 
-        /**
-         * Recursive function to reveal cells (Flood fill for empty cells)
-         */
         function revealCell(r, c) {
             const config = DIFFICULTIES[currentDifficulty];
             if (r < 0 || r >= config.rows || c < 0 || c >= config.cols) return;
@@ -665,7 +644,6 @@
             cellEl.classList.add('revealed');
 
             if (cellData.isMine) {
-                // Game Over
                 gameOver(false, r, c);
                 return;
             }
@@ -674,7 +652,6 @@
                 cellEl.textContent = cellData.neighborMines;
                 cellEl.classList.add(`num-${cellData.neighborMines}`);
             } else {
-                // Flood fill for 0 neighbor mines
                 for (let i = -1; i <= 1; i++) {
                     for (let j = -1; j <= 1; j++) {
                         if (i === 0 && j === 0) continue;
@@ -684,10 +661,6 @@
             }
         }
 
-        /**
-         * STREAMING_CHUNK:Handling right clicks for flagging and unflagging...
-         * Handle Right Click (Flag)
-         */
         function handleRightClick(r, c) {
             if (gameStatus !== 'ready' && gameStatus !== 'playing') return;
             
@@ -696,6 +669,7 @@
 
             const cellEl = getCellElement(r, c);
 
+            // Toggle Flag
             if (!cellData.isFlagged) {
                 cellData.isFlagged = true;
                 cellEl.classList.add('flag');
@@ -705,21 +679,16 @@
                 cellEl.classList.remove('flag');
                 minesLeft++;
             }
+            // Update UI
             updateDisplay(mineCountEl, minesLeft);
         }
 
-        /**
-         * Utility to get DOM element for a specific grid coordinate
-         */
         function getCellElement(r, c) {
             const config = DIFFICULTIES[currentDifficulty];
             const index = r * config.cols + c;
             return minefieldEl.children[index];
         }
 
-        /**
-         * STREAMING_CHUNK:Game Over and Win condition checks...
-         */
         function gameOver(isWin, triggerR = null, triggerC = null) {
             gameStatus = isWin ? 'won' : 'lost';
             stopTimer();
@@ -732,24 +701,22 @@
                     const cellEl = getCellElement(r, c);
 
                     if (!isWin) {
-                        // Reveal mines on loss
                         if (cellData.isMine && !cellData.isFlagged) {
                             cellEl.classList.add('revealed', 'mine-revealed');
                             if (r === triggerR && c === triggerC) {
-                                cellEl.classList.add('mine', 'explode'); // Add explosion class
+                                cellEl.classList.add('mine', 'explode'); 
                             }
                         } else if (!cellData.isMine && cellData.isFlagged) {
-                            // Incorrectly flagged
-                             cellEl.classList.add('wrong-flag');
+                             cellEl.classList.add('wrong-flag'); // Flagged wrongly
                         }
                     } else {
-                        // On win, flag all remaining mines and animate
+                        // Win animation: force flags on all mines
                         if (cellData.isMine) {
                             if (!cellData.isFlagged) {
                                 cellData.isFlagged = true;
                                 cellEl.classList.add('flag');
                             }
-                            cellEl.classList.add('win-anim'); // Add bounce animation
+                            cellEl.classList.add('win-anim'); 
                         }
                     }
                 }
@@ -758,7 +725,6 @@
                  minesLeft = 0;
                  updateDisplay(mineCountEl, minesLeft);
                  
-                 // Show win modal with a slight delay
                  setTimeout(() => {
                      document.getElementById('win-time').textContent = secondsElapsed;
                      document.getElementById('win-modal').style.display = 'block';
@@ -785,9 +751,6 @@
             }
         }
 
-        /**
-         * STREAMING_CHUNK:Timer functionality and Menu handling...
-         */
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -804,14 +767,8 @@
             }
         }
 
-        // Menu functions
-        function showMenu() {
-            menuModal.style.display = 'block';
-        }
-
-        function closeMenu() {
-            menuModal.style.display = 'none';
-        }
+        function showMenu() { menuModal.style.display = 'block'; }
+        function closeMenu() { menuModal.style.display = 'none'; }
 
         function setDifficulty(level) {
             currentDifficulty = level;
@@ -824,18 +781,15 @@
             const h = parseInt(document.getElementById('custom-h').value);
             let m = parseInt(document.getElementById('custom-m').value);
 
-            // Validate inputs and enforce limits (max 50x50 to prevent freezing)
             const validW = Math.max(8, Math.min(w || 8, 50));
             const validH = Math.max(8, Math.min(h || 8, 50));
-            const maxMines = (validW * validH) - 1; // Leave at least 1 safe cell
+            const maxMines = (validW * validH) - 1; 
             const validM = Math.max(1, Math.min(m || 10, maxMines));
 
-            // Update inputs with validated numbers
             document.getElementById('custom-w').value = validW;
             document.getElementById('custom-h').value = validH;
             document.getElementById('custom-m').value = validM;
 
-            // Set new difficulty config
             DIFFICULTIES['custom'] = { rows: validH, cols: validW, mines: validM };
             currentDifficulty = 'custom';
             
@@ -843,7 +797,7 @@
             initGame();
         }
 
-        // Initialize game on load
+        // Initialize on load
         window.onload = initGame;
     </script>
 </body>
