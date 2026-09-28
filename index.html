@@ -237,4 +237,614 @@
         @keyframes explode-flash {
             0% { background-color: #ff0000; }
             20% { background-color: #ffffff; transform: scale(1.3); }
-            40% { background-color: #ffff00; transform: scale(1.1); z
+            40% { background-color: #ffff00; transform: scale(1.1); z-index: 10; }
+            60% { background-color: #ff8800; transform: scale(1.2); }
+            80% { background-color: #ffffff; transform: scale(1); }
+            100% { background-color: #ff0000; }
+        }
+        .mine.explode {
+            animation: explode-flash 0.6s ease-out;
+            background-color: #ff0000;
+            z-index: 5;
+            position: relative;
+            box-shadow: 0 0 10px #ff0000;
+        }
+        .mine.explode::after {
+            content: '💥';
+            font-size: 14px;
+        }
+
+        /* Win Animation for flags */
+        @keyframes flag-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px) scale(1.2); }
+        }
+        .flag.win-anim::after {
+            animation: flag-bounce 0.5s infinite;
+            display: inline-block;
+        }
+
+        /* Win Notification Modal */
+        #win-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--win-bg);
+            border: 2px outset var(--win-light);
+            padding: 15px 25px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.6);
+            z-index: 20;
+            text-align: center;
+        }
+        #win-modal h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: var(--win-blue);
+        }
+        #win-modal .big-flag {
+            font-size: 35px;
+            margin-bottom: 10px;
+            animation: flag-bounce 0.5s infinite;
+        }
+        #win-modal button {
+            margin: 5px;
+            padding: 4px 12px;
+            background-color: var(--win-bg);
+            border: 2px outset var(--win-light);
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #win-modal button:active {
+            border: 2px inset var(--win-dark);
+        }
+
+        /* Simple Modal for Menu (Custom Alert/Select) */
+        #custom-menu-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--win-bg);
+            border: 2px outset var(--win-light);
+            padding: 10px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        #custom-menu-modal h3 {
+            margin-top: 0;
+            font-size: 14px;
+        }
+        #custom-menu-modal button {
+            margin: 5px;
+            padding: 2px 10px;
+            background-color: var(--win-bg);
+            border: 2px outset var(--win-light);
+            cursor: pointer;
+        }
+        #custom-menu-modal button:active {
+            border: 2px inset var(--win-dark);
+        }
+
+        /* Custom inputs styling for retro feel */
+        .custom-inputs {
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 2px solid var(--win-dark);
+            position: relative;
+            text-align: left;
+        }
+        .custom-inputs::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            border-top: 2px solid var(--win-light);
+        }
+        .custom-inputs label {
+            display: inline-block;
+            width: 50px;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .custom-inputs input {
+            width: 45px;
+            background-color: var(--win-light);
+            border-top: 2px solid var(--win-dark);
+            border-left: 2px solid var(--win-dark);
+            border-bottom: 2px solid #e0e0e0;
+            border-right: 2px solid #e0e0e0;
+            font-family: inherit;
+            padding: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-window">
+        <!-- Title Bar -->
+        <div id="title-bar">
+            <span>💣 Minesweeper</span>
+            <div class="title-buttons">
+                <button aria-label="Minimize">_</button>
+                <button aria-label="Maximize">□</button>
+                <button aria-label="Close">x</button>
+            </div>
+        </div>
+
+        <!-- Menu Bar -->
+        <div id="menu-bar">
+            <div class="menu-item" onclick="showMenu()"><span>G</span>ame</div>
+            <div class="menu-item"><span>H</span>elp</div>
+        </div>
+
+        <!-- Game Info Header -->
+        <div id="game-header">
+            <div id="mine-count" class="digital-display">010</div>
+            <div id="reset-btn" onclick="initGame()">🙂</div>
+            <div id="timer" class="digital-display">000</div>
+        </div>
+
+        <!-- Minefield Area -->
+        <div id="minefield-container">
+            <div id="minefield" oncontextmenu="return false;">
+                <!-- Cells will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Menu Modal for Difficulty Selection -->
+    <div id="custom-menu-modal">
+        <h3>Select Difficulty</h3>
+        <button onclick="setDifficulty('beginner')">Beginner (9x9, 10 Mines)</button><br>
+        <button onclick="setDifficulty('intermediate')">Intermediate (16x16, 40 Mines)</button><br>
+        <button onclick="setDifficulty('expert')">Expert (30x16, 99 Mines)</button><br>
+        
+        <div class="custom-inputs">
+            <strong>Custom:</strong><br>
+            <label>Width:</label><input type="number" id="custom-w" value="20" min="8" max="50"><br>
+            <label>Height:</label><input type="number" id="custom-h" value="15" min="8" max="50"><br>
+            <label>Mines:</label><input type="number" id="custom-m" value="50" min="1" max="999"><br>
+            <button onclick="setCustomDifficulty()" style="margin-top: 8px;">Play Custom</button>
+        </div>
+
+        <button onclick="closeMenu()" style="margin-top:10px; width: 100%;">Cancel</button>
+    </div>
+
+    <!-- Win Notification Modal -->
+    <div id="win-modal">
+        <div class="big-flag">🚩</div>
+        <h2>지뢰 제거 완료!</h2>
+        <p style="font-size: 14px; margin-bottom: 15px;">기록: <span id="win-time">0</span>초</p>
+        <button onclick="document.getElementById('win-modal').style.display='none'; initGame();">새 게임</button>
+        <button onclick="document.getElementById('win-modal').style.display='none';">닫기</button>
+    </div>
+
+    <script>
+        // Game Constants and State
+        const DIFFICULTIES = {
+            beginner: { rows: 9, cols: 9, mines: 10 },
+            intermediate: { rows: 16, cols: 16, mines: 40 },
+            expert: { rows: 16, cols: 30, mines: 99 } // Note: Standard expert is 16 rows, 30 cols
+        };
+
+        let currentDifficulty = 'beginner';
+        let board = [];
+        let gameStatus = 'ready'; // ready, playing, won, lost
+        let minesLeft = 0;
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let firstClick = true;
+
+        // DOM Elements
+        const minefieldEl = document.getElementById('minefield');
+        const mineCountEl = document.getElementById('mine-count');
+        const timerEl = document.getElementById('timer');
+        const resetBtnEl = document.getElementById('reset-btn');
+        const menuModal = document.getElementById('custom-menu-modal');
+
+        // Faces for reset button
+        const FACES = {
+            smile: '🙂',
+            ooh: '😮',
+            dead: '😵',
+            win: '😎'
+        };
+
+        /**
+         * STREAMING_CHUNK:Initializing the game board based on difficulty...
+         * Initialize or reset the game
+         */
+        function initGame() {
+            const config = DIFFICULTIES[currentDifficulty];
+            gameStatus = 'ready';
+            firstClick = true;
+            minesLeft = config.mines;
+            secondsElapsed = 0;
+            
+            // Hide Win Modal if open
+            document.getElementById('win-modal').style.display = 'none';
+
+            // Reset UI
+            resetBtnEl.textContent = FACES.smile;
+            updateDisplay(mineCountEl, minesLeft);
+            updateDisplay(timerEl, 0);
+            stopTimer();
+
+            // Setup Board Data Structure
+            board = [];
+            for (let r = 0; r < config.rows; r++) {
+                let row = [];
+                for (let c = 0; c < config.cols; c++) {
+                    row.push({
+                        r: r,
+                        c: c,
+                        isMine: false,
+                        isRevealed: false,
+                        isFlagged: false,
+                        neighborMines: 0
+                    });
+                }
+                board.push(row);
+            }
+
+            renderBoard();
+        }
+
+        /**
+         * Update the digital displays (timer, mine count)
+         */
+        function updateDisplay(element, value) {
+            // Handle negative numbers for mine count if too many flags
+            let strVal;
+            if (value < 0) {
+                 strVal = "-" + Math.abs(value).toString().padStart(2, '0');
+                 // Ensure it fits in 3 chars, limit to -99
+                 if(value < -99) strVal = "-99";
+            } else {
+                 strVal = value.toString().padStart(3, '0');
+                 if(value > 999) strVal = "999";
+            }
+            element.textContent = strVal;
+        }
+
+        /**
+         * STREAMING_CHUNK:Rendering the grid and attaching event listeners to cells...
+         * Render the HTML grid based on the board state
+         */
+        function renderBoard() {
+            const config = DIFFICULTIES[currentDifficulty];
+            minefieldEl.innerHTML = '';
+            
+            // Set CSS Grid layout dynamically based on columns
+            minefieldEl.style.gridTemplateColumns = `repeat(${config.cols}, 16px)`;
+            
+            // Adjust container width to fit grid perfectly plus borders
+            const containerWidth = (config.cols * 16);
+            minefieldEl.style.width = `${containerWidth}px`;
+
+            for (let r = 0; r < config.rows; r++) {
+                for (let c = 0; c < config.cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    
+                    // Event Listeners for interaction
+                    cell.addEventListener('mousedown', handleCellMouseDown);
+                    cell.addEventListener('mouseup', handleCellMouseUp);
+                    cell.addEventListener('mouseleave', handleCellMouseLeave);
+                    cell.addEventListener('contextmenu', (e) => {
+                        e.preventDefault(); // Prevent default browser context menu
+                        handleRightClick(r, c);
+                    });
+
+                    minefieldEl.appendChild(cell);
+                }
+            }
+        }
+
+        /**
+         * STREAMING_CHUNK:Handling mouse interactions for the 'ooh' face effect...
+         */
+        function handleCellMouseDown(e) {
+            if (gameStatus !== 'ready' && gameStatus !== 'playing') return;
+            // Left click only
+            if (e.button === 0) {
+                resetBtnEl.textContent = FACES.ooh;
+                const r = parseInt(e.target.dataset.r);
+                const c = parseInt(e.target.dataset.c);
+                const cellData = board[r][c];
+                if (!cellData.isRevealed && !cellData.isFlagged) {
+                     e.target.classList.add('active'); // Visual press down
+                }
+            }
+        }
+
+        function handleCellMouseLeave(e) {
+             e.target.classList.remove('active');
+        }
+
+        function handleCellMouseUp(e) {
+            if (gameStatus !== 'ready' && gameStatus !== 'playing') return;
+            
+            e.target.classList.remove('active');
+            
+            if (gameStatus === 'ready' || gameStatus === 'playing') {
+                resetBtnEl.textContent = FACES.smile;
+            }
+
+            const r = parseInt(e.target.dataset.r);
+            const c = parseInt(e.target.dataset.c);
+
+            // Left click (0) or Middle click/Both buttons simulation for chord (1/2 depending on browser, usually handled differently)
+            if (e.button === 0) {
+                handleLeftClick(r, c);
+            }
+        }
+
+        /**
+         * STREAMING_CHUNK:Placing mines and calculating neighbor counts on first click...
+         * Place mines randomly, avoiding the first clicked cell
+         */
+        function placeMines(firstR, firstC) {
+            const config = DIFFICULTIES[currentDifficulty];
+            let minesToPlace = config.mines;
+
+            while (minesToPlace > 0) {
+                const r = Math.floor(Math.random() * config.rows);
+                const c = Math.floor(Math.random() * config.cols);
+
+                // Don't place on first click or if already a mine
+                if (!board[r][c].isMine && !(r === firstR && c === firstC)) {
+                    board[r][c].isMine = true;
+                    minesToPlace--;
+                }
+            }
+
+            // Calculate neighbor counts
+            for (let r = 0; r < config.rows; r++) {
+                for (let c = 0; c < config.cols; c++) {
+                    if (!board[r][c].isMine) {
+                        board[r][c].neighborMines = countNeighborMines(r, c);
+                    }
+                }
+            }
+        }
+
+        function countNeighborMines(r, c) {
+            let count = 0;
+            const config = DIFFICULTIES[currentDifficulty];
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    if (i === 0 && j === 0) continue;
+                    const nr = r + i;
+                    const nc = c + j;
+                    if (nr >= 0 && nr < config.rows && nc >= 0 && nc < config.cols) {
+                        if (board[nr][nc].isMine) count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        /**
+         * STREAMING_CHUNK:Core gameplay logic: revealing cells and handling flood fill...
+         * Handle Left Click (Reveal)
+         */
+        function handleLeftClick(r, c) {
+            const cellData = board[r][c];
+
+            if (cellData.isRevealed || cellData.isFlagged) return;
+
+            if (firstClick) {
+                placeMines(r, c);
+                firstClick = false;
+                gameStatus = 'playing';
+                startTimer();
+            }
+
+            revealCell(r, c);
+            checkWinCondition();
+        }
+
+        /**
+         * Recursive function to reveal cells (Flood fill for empty cells)
+         */
+        function revealCell(r, c) {
+            const config = DIFFICULTIES[currentDifficulty];
+            if (r < 0 || r >= config.rows || c < 0 || c >= config.cols) return;
+            
+            const cellData = board[r][c];
+            if (cellData.isRevealed || cellData.isFlagged) return;
+
+            cellData.isRevealed = true;
+            const cellEl = getCellElement(r, c);
+            cellEl.classList.add('revealed');
+
+            if (cellData.isMine) {
+                // Game Over
+                gameOver(false, r, c);
+                return;
+            }
+
+            if (cellData.neighborMines > 0) {
+                cellEl.textContent = cellData.neighborMines;
+                cellEl.classList.add(`num-${cellData.neighborMines}`);
+            } else {
+                // Flood fill for 0 neighbor mines
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        if (i === 0 && j === 0) continue;
+                        revealCell(r + i, c + j);
+                    }
+                }
+            }
+        }
+
+        /**
+         * STREAMING_CHUNK:Handling right clicks for flagging and unflagging...
+         * Handle Right Click (Flag)
+         */
+        function handleRightClick(r, c) {
+            if (gameStatus !== 'ready' && gameStatus !== 'playing') return;
+            
+            const cellData = board[r][c];
+            if (cellData.isRevealed) return; // Cannot flag revealed cells
+
+            const cellEl = getCellElement(r, c);
+
+            if (!cellData.isFlagged) {
+                cellData.isFlagged = true;
+                cellEl.classList.add('flag');
+                minesLeft--;
+            } else {
+                cellData.isFlagged = false;
+                cellEl.classList.remove('flag');
+                minesLeft++;
+            }
+            updateDisplay(mineCountEl, minesLeft);
+        }
+
+        /**
+         * Utility to get DOM element for a specific grid coordinate
+         */
+        function getCellElement(r, c) {
+            const config = DIFFICULTIES[currentDifficulty];
+            const index = r * config.cols + c;
+            return minefieldEl.children[index];
+        }
+
+        /**
+         * STREAMING_CHUNK:Game Over and Win condition checks...
+         */
+        function gameOver(isWin, triggerR = null, triggerC = null) {
+            gameStatus = isWin ? 'won' : 'lost';
+            stopTimer();
+            resetBtnEl.textContent = isWin ? FACES.win : FACES.dead;
+            const config = DIFFICULTIES[currentDifficulty];
+
+            for (let r = 0; r < config.rows; r++) {
+                for (let c = 0; c < config.cols; c++) {
+                    const cellData = board[r][c];
+                    const cellEl = getCellElement(r, c);
+
+                    if (!isWin) {
+                        // Reveal mines on loss
+                        if (cellData.isMine && !cellData.isFlagged) {
+                            cellEl.classList.add('revealed', 'mine-revealed');
+                            if (r === triggerR && c === triggerC) {
+                                cellEl.classList.add('mine', 'explode'); // Add explosion class
+                            }
+                        } else if (!cellData.isMine && cellData.isFlagged) {
+                            // Incorrectly flagged
+                             cellEl.classList.add('wrong-flag');
+                        }
+                    } else {
+                        // On win, flag all remaining mines and animate
+                        if (cellData.isMine) {
+                            if (!cellData.isFlagged) {
+                                cellData.isFlagged = true;
+                                cellEl.classList.add('flag');
+                            }
+                            cellEl.classList.add('win-anim'); // Add bounce animation
+                        }
+                    }
+                }
+            }
+            if(isWin) {
+                 minesLeft = 0;
+                 updateDisplay(mineCountEl, minesLeft);
+                 
+                 // Show win modal with a slight delay
+                 setTimeout(() => {
+                     document.getElementById('win-time').textContent = secondsElapsed;
+                     document.getElementById('win-modal').style.display = 'block';
+                 }, 600);
+            }
+        }
+
+        function checkWinCondition() {
+            if (gameStatus !== 'playing') return;
+            const config = DIFFICULTIES[currentDifficulty];
+            let revealedCount = 0;
+            const totalSafeCells = (config.rows * config.cols) - config.mines;
+
+            for (let r = 0; r < config.rows; r++) {
+                for (let c = 0; c < config.cols; c++) {
+                    if (board[r][c].isRevealed) {
+                        revealedCount++;
+                    }
+                }
+            }
+
+            if (revealedCount === totalSafeCells) {
+                gameOver(true);
+            }
+        }
+
+        /**
+         * STREAMING_CHUNK:Timer functionality and Menu handling...
+         */
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                if (secondsElapsed > 999) secondsElapsed = 999;
+                updateDisplay(timerEl, secondsElapsed);
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Menu functions
+        function showMenu() {
+            menuModal.style.display = 'block';
+        }
+
+        function closeMenu() {
+            menuModal.style.display = 'none';
+        }
+
+        function setDifficulty(level) {
+            currentDifficulty = level;
+            closeMenu();
+            initGame();
+        }
+
+        function setCustomDifficulty() {
+            const w = parseInt(document.getElementById('custom-w').value);
+            const h = parseInt(document.getElementById('custom-h').value);
+            let m = parseInt(document.getElementById('custom-m').value);
+
+            // Validate inputs and enforce limits (max 50x50 to prevent freezing)
+            const validW = Math.max(8, Math.min(w || 8, 50));
+            const validH = Math.max(8, Math.min(h || 8, 50));
+            const maxMines = (validW * validH) - 1; // Leave at least 1 safe cell
+            const validM = Math.max(1, Math.min(m || 10, maxMines));
+
+            // Update inputs with validated numbers
+            document.getElementById('custom-w').value = validW;
+            document.getElementById('custom-h').value = validH;
+            document.getElementById('custom-m').value = validM;
+
+            // Set new difficulty config
+            DIFFICULTIES['custom'] = { rows: validH, cols: validW, mines: validM };
+            currentDifficulty = 'custom';
+            
+            closeMenu();
+            initGame();
+        }
+
+        // Initialize game on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
