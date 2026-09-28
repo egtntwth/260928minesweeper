@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Minesweeper</title>
+    <style>
+        /* Retro Windows 9x Color Palette */
+        :root {
+            --win-bg: #c0c0c0;
+            --win-dark: #808080;
+            --win-light: #ffffff;
+            --win-text: #000000;
+            --win-blue: #000080;
+            --win-border-out: inset 2px rgba(255, 255, 255, 0.8);
+            --win-border-in: outset 2px rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            background-color: #008080; /* Classic Teal Desktop Background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none; /* Prevent text selection while clicking */
+        }
+
+        /* Window Container Styling */
+        #game-window {
+            background-color: var(--win-bg);
+            border-top: 2px solid var(--win-light);
+            border-left: 2px solid var(--win-light);
+            border-bottom: 2px solid var(--win-dark);
+            border-right: 2px solid var(--win-dark);
+            box-shadow: 2px 2px 0px #000;
+            padding: 2px;
+            display: inline-block;
+        }
+
+        /* Window Title Bar */
+        #title-bar {
+            background-color: var(--win-blue);
+            color: var(--win-light);
+            padding: 3px 5px;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .title-buttons button {
+            background-color: var(--win-bg);
+            border-top: 1px solid var(--win-light);
+            border-left: 1px solid var(--win-light);
+            border-bottom: 1px solid var(--win-dark);
+            border-right: 1px solid var(--win-dark);
+            width: 16px;
+            height: 14px;
+            font-size: 9px;
+            line-height: 9px;
+            text-align: center;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 2px;
+            font-weight: bold;
+        }
+        .title-buttons button:active {
+            border-top: 1px solid var(--win-dark);
+            border-left: 1px solid var(--win-dark);
+            border-bottom: 1px solid var(--win-light);
+            border-right: 1px solid var(--win-light);
+        }
+
+        /* Menu Bar */
+        #menu-bar {
+            font-size: 12px;
+            padding: 2px 5px;
+            border-bottom: 1px solid var(--win-dark);
+            margin-bottom: 5px;
+            display: flex;
+            gap: 10px;
+        }
+        .menu-item {
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            background-color: var(--win-blue);
+            color: var(--win-light);
+        }
+        .menu-item span { text-decoration: underline; }
+
+        /* Game Header (Score, Face, Timer) */
+        #game-header {
+            border-top: 2px solid var(--win-dark);
+            border-left: 2px solid var(--win-dark);
+            border-bottom: 2px solid var(--win-light);
+            border-right: 2px solid var(--win-light);
+            padding: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px;
+            background-color: var(--win-bg);
+        }
+
+        /* Digital Display for Mines and Time */
+        .digital-display {
+            background-color: black;
+            color: red;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 2px 4px;
+            border-top: 1px solid var(--win-dark);
+            border-left: 1px solid var(--win-dark);
+            border-bottom: 1px solid var(--win-light);
+            border-right: 1px solid var(--win-light);
+            width: 45px;
+            text-align: right;
+            line-height: 1;
+        }
+
+        /* Reset Button (Face) */
+        #reset-btn {
+            width: 26px;
+            height: 26px;
+            background-color: var(--win-bg);
+            border-top: 2px solid var(--win-light);
+            border-left: 2px solid var(--win-light);
+            border-bottom: 2px solid var(--win-dark);
+            border-right: 2px solid var(--win-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+        }
+        #reset-btn:active {
+            border-top: 2px solid var(--win-dark);
+            border-left: 2px solid var(--win-dark);
+            border-bottom: 2px solid var(--win-light);
+            border-right: 2px solid var(--win-light);
+            padding-top: 2px;
+            padding-left: 2px;
+        }
+
+        /* Minefield Grid Styling */
+        #minefield-container {
+            border-top: 3px solid var(--win-dark);
+            border-left: 3px solid var(--win-dark);
+            border-bottom: 3px solid var(--win-light);
+            border-right: 3px solid var(--win-light);
+            margin: 5px;
+            background-color: var(--win-bg);
+        }
+
+        #minefield {
+            display: grid;
+            /* Grid template will be set by JS based on difficulty */
+        }
+
+        /* Individual Cell Styling */
+        .cell {
+            width: 16px;
+            height: 16px;
+            background-color: var(--win-bg);
+            border-top: 2px solid var(--win-light);
+            border-left: 2px solid var(--win-light);
+            border-bottom: 2px solid var(--win-dark);
+            border-right: 2px solid var(--win-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        /* Revealed Cell Styling */
+        .cell.revealed {
+            border: 1px solid #7b7b7b;
+            background-color: var(--win-bg);
+            /* Reset inset border */
+            border-top-color: #7b7b7b;
+            border-left-color: #7b7b7b;
+            border-bottom-color: #7b7b7b;
+            border-right-color: #7b7b7b;
+        }
+        
+        /* Specific styling for when a cell is clicked but not yet released */
+        .cell.active {
+             border: 1px solid #7b7b7b;
+        }
+
+        /* Number Colors */
+        .num-1 { color: #0000FF; } /* Blue */
+        .num-2 { color: #008000; } /* Green */
+        .num-3 { color: #FF0000; } /* Red */
+        .num-4 { color: #000080; } /* Navy */
+        .num-5 { color: #800000; } /* Maroon */
+        .num-6 { color: #008080; } /* Teal */
+        .num-7 { color: #000000; } /* Black */
+        .num-8 { color: #808080; } /* Gray */
+
+        /* Mine icon using simple unicode or shapes for retro feel */
+        .mine {
+            background-color: red; /* Highlight triggered mine */
+        }
+        .mine::after {
+            content: '💣';
+            font-size: 10px;
+        }
+        
+        .mine-revealed::after {
+             content: '💣';
+             font-size: 10px;
+        }
+
+        .flag::after {
+            content: '🚩';
+            font-size: 10px;
+        }
+        
+        .wrong-flag::after {
+            content: '❌';
+            font-size: 10px;
+            color: red;
+            position: absolute;
+        }
+
+        /* Explosion Animation for triggered mine */
+        @keyframes explode-flash {
+            0% { background-color: #ff0000; }
+            20% { background-color: #ffffff; transform: scale(1.3); }
+            40% { background-color: #ffff00; transform: scale(1.1); z
