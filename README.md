@@ -1,2 +1,2 @@
-# 260928minesweeper1
+# 260928minesweeper
 minesweeper
