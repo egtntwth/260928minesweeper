@@ -1,0 +1,866 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2775.1">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Retro Minesweeper&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Retro Windows 9x Color Palette */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--win-bg: #c0c0c0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--win-dark: #808080;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--win-light: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--win-text: #000000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--win-blue: #000080;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--win-border-out: inset 2px rgba(255, 255, 255, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--win-border-in: outset 2px rgba(255, 255, 255, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #008080; /* Classic Teal Desktop Background */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 100vh;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>user-select: none; /* Prevent text selection while clicking */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Window Container Styling */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#game-window {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 2px 2px 0px #000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Window Title Bar */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#title-bar {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-blue);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 3px 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.title-buttons button {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 1px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 1px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 1px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 9px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>line-height: 9px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-left: 2px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.title-buttons button:active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 1px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 1px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 1px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Menu Bar */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#menu-bar {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2px 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.menu-item {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.menu-item:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-blue);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.menu-item span { text-decoration: underline; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Game Header (Score, Face, Timer) */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#game-header {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 6px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Digital Display for Mines and Time */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.digital-display {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: black;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: red;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Courier New', Courier, monospace;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2px 4px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 1px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 1px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 1px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 45px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: right;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>line-height: 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Reset Button (Face) */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#reset-btn {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 26px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 26px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#reset-btn:active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding-top: 2px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding-left: 2px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Minefield Grid Styling */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#minefield-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 3px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 3px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 3px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 3px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>#minefield {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/* Grid template will be set by JS based on difficulty */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Individual Cell Styling */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.cell {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-sizing: border-box;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Revealed Cell Styling */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.cell.revealed {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #7b7b7b;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/* Reset inset border */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top-color: #7b7b7b;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left-color: #7b7b7b;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom-color: #7b7b7b;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right-color: #7b7b7b;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Specific styling for when a cell is clicked but not yet released */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.cell.active {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>border: 1px solid #7b7b7b;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Number Colors */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.num-1 { color: #0000FF; } /* Blue */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.num-2 { color: #008000; } /* Green */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.num-3 { color: #FF0000; } /* Red */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.num-4 { color: #000080; } /* Navy */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.num-5 { color: #800000; } /* Maroon */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.num-6 { color: #008080; } /* Teal */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.num-7 { color: #000000; } /* Black */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.num-8 { color: #808080; } /* Gray */</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Mine icon using simple unicode or shapes for retro feel */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.mine {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: red; /* Highlight triggered mine */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.mine::after {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content: '💣';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.mine-revealed::after {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>content: '💣';</p>
+<p class="p1"><span class="Apple-converted-space">             </span>font-size: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.flag::after {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content: '🚩';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.wrong-flag::after {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content: '❌';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: red;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Explosion Animation for triggered mine */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@keyframes explode-flash {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>0% { background-color: #ff0000; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>20% { background-color: #ffffff; transform: scale(1.3); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>40% { background-color: #ffff00; transform: scale(1.1); z-index: 10; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>60% { background-color: #ff8800; transform: scale(1.2); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>80% { background-color: #ffffff; transform: scale(1); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>100% { background-color: #ff0000; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.mine.explode {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animation: explode-flash 0.6s ease-out;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #ff0000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 0 10px #ff0000;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.mine.explode::after {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content: '💥';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Win Animation for flags */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@keyframes flag-bounce {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>0%, 100% { transform: translateY(0); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>50% { transform: translateY(-4px) scale(1.2); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.flag.win-anim::after {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animation: flag-bounce 0.5s infinite;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Win Notification Modal */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#win-modal {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>top: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>left: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform: translate(-50%, -50%);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px outset var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 15px 25px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 3px 3px 10px rgba(0,0,0,0.6);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 20;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#win-modal h2 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 0 10px 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--win-blue);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#win-modal .big-flag {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 35px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animation: flag-bounce 0.5s infinite;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#win-modal button {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 4px 12px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px outset var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#win-modal button:active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px inset var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Simple Modal for Menu (Custom Alert/Select) */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#custom-menu-modal {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>top: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>left: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform: translate(-50%, -50%);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px outset var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 2px 2px 5px rgba(0,0,0,0.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 10;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#custom-menu-modal h3 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#custom-menu-modal button {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2px 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px outset var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#custom-menu-modal button:active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px inset var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Custom inputs styling for retro feel */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.custom-inputs {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding-top: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: left;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.custom-inputs::before {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content: "";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>top: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>left: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>right: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 2px solid var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.custom-inputs label {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 50px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.custom-inputs input {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 45px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--win-light);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-top: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 2px solid var(--win-dark);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid #e0e0e0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-right: 2px solid #e0e0e0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: inherit;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="game-window"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Title Bar --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="title-bar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;💣 Minesweeper&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="title-buttons"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button aria-label="Minimize"&gt;_&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button aria-label="Maximize"&gt;□&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button aria-label="Close"&gt;x&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Menu Bar --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="menu-bar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="menu-item" onclick="showMenu()"&gt;&lt;span&gt;G&lt;/span&gt;ame&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="menu-item"&gt;&lt;span&gt;H&lt;/span&gt;elp&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Game Info Header --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="game-header"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="mine-count" class="digital-display"&gt;010&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="reset-btn" onclick="initGame()"&gt;🙂&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="timer" class="digital-display"&gt;000&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Minefield Area --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="minefield-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="minefield" oncontextmenu="return false;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Cells will be generated here --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Custom Menu Modal for Difficulty Selection --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="custom-menu-modal"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h3&gt;Select Difficulty&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="setDifficulty('beginner')"&gt;Beginner (9x9, 10 Mines)&lt;/button&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="setDifficulty('intermediate')"&gt;Intermediate (16x16, 40 Mines)&lt;/button&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="setDifficulty('expert')"&gt;Expert (30x16, 99 Mines)&lt;/button&gt;&lt;br&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="custom-inputs"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;strong&gt;Custom:&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;Width:&lt;/label&gt;&lt;input type="number" id="custom-w" value="20" min="8" max="50"&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;Height:&lt;/label&gt;&lt;input type="number" id="custom-h" value="15" min="8" max="50"&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;Mines:&lt;/label&gt;&lt;input type="number" id="custom-m" value="50" min="1" max="999"&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="setCustomDifficulty()" style="margin-top: 8px;"&gt;Play Custom&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="closeMenu()" style="margin-top:10px; width: 100%;"&gt;Cancel&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Win Notification Modal --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="win-modal"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="big-flag"&gt;🚩&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;지뢰 제거 완료!&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p style="font-size: 14px; margin-bottom: 15px;"&gt;기록: &lt;span id="win-time"&gt;0&lt;/span&gt;초&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="document.getElementById('win-modal').style.display='none'; initGame();"&gt;새 게임&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="document.getElementById('win-modal').style.display='none';"&gt;닫기&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Game Constants and State</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const DIFFICULTIES = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>beginner: { rows: 9, cols: 9, mines: 10 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>intermediate: { rows: 16, cols: 16, mines: 40 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>expert: { rows: 16, cols: 30, mines: 99 } // Note: Standard expert is 16 rows, 30 cols</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let currentDifficulty = 'beginner';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let board = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let gameStatus = 'ready'; // ready, playing, won, lost</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let minesLeft = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let timerInterval = null;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let secondsElapsed = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let firstClick = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// DOM Elements</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const minefieldEl = document.getElementById('minefield');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const mineCountEl = document.getElementById('mine-count');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const timerEl = document.getElementById('timer');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const resetBtnEl = document.getElementById('reset-btn');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const menuModal = document.getElementById('custom-menu-modal');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Faces for reset button</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const FACES = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>smile: '🙂',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ooh: '😮',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>dead: '😵',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>win: '😎'</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* STREAMING_CHUNK:Initializing the game board based on difficulty...</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Initialize or reset the game</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function initGame() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const config = DIFFICULTIES[currentDifficulty];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gameStatus = 'ready';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>firstClick = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>minesLeft = config.mines;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>secondsElapsed = 0;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Hide Win Modal if open</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('win-modal').style.display = 'none';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Reset UI</p>
+<p class="p1"><span class="Apple-converted-space">            </span>resetBtnEl.textContent = FACES.smile;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateDisplay(mineCountEl, minesLeft);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateDisplay(timerEl, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stopTimer();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Setup Board Data Structure</p>
+<p class="p1"><span class="Apple-converted-space">            </span>board = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let r = 0; r &lt; config.rows; r++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let row = [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let c = 0; c &lt; config.cols; c++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>row.push({</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>r: r,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>c: c,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>isMine: false,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>isRevealed: false,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>isFlagged: false,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>neighborMines: 0</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>board.push(row);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderBoard();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Update the digital displays (timer, mine count)</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateDisplay(element, value) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Handle negative numbers for mine count if too many flags</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let strVal;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (value &lt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>strVal = "-" + Math.abs(value).toString().padStart(2, '0');</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>// Ensure it fits in 3 chars, limit to -99</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>if(value &lt; -99) strVal = "-99";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>strVal = value.toString().padStart(3, '0');</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>if(value &gt; 999) strVal = "999";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>element.textContent = strVal;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* STREAMING_CHUNK:Rendering the grid and attaching event listeners to cells...</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Render the HTML grid based on the board state</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function renderBoard() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const config = DIFFICULTIES[currentDifficulty];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>minefieldEl.innerHTML = '';</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Set CSS Grid layout dynamically based on columns</p>
+<p class="p1"><span class="Apple-converted-space">            </span>minefieldEl.style.gridTemplateColumns = `repeat(${config.cols}, 16px)`;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Adjust container width to fit grid perfectly plus borders</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const containerWidth = (config.cols * 16);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>minefieldEl.style.width = `${containerWidth}px`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let r = 0; r &lt; config.rows; r++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let c = 0; c &lt; config.cols; c++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const cell = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>cell.classList.add('cell');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>cell.dataset.r = r;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>cell.dataset.c = c;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// Event Listeners for interaction</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>cell.addEventListener('mousedown', handleCellMouseDown);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>cell.addEventListener('mouseup', handleCellMouseUp);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>cell.addEventListener('mouseleave', handleCellMouseLeave);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>cell.addEventListener('contextmenu', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>e.preventDefault(); // Prevent default browser context menu</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>handleRightClick(r, c);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>minefieldEl.appendChild(cell);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* STREAMING_CHUNK:Handling mouse interactions for the 'ooh' face effect...</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleCellMouseDown(e) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (gameStatus !== 'ready' &amp;&amp; gameStatus !== 'playing') return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Left click only</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (e.button === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resetBtnEl.textContent = FACES.ooh;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const r = parseInt(e.target.dataset.r);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const c = parseInt(e.target.dataset.c);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const cellData = board[r][c];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!cellData.isRevealed &amp;&amp; !cellData.isFlagged) {</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>e.target.classList.add('active'); // Visual press down</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleCellMouseLeave(e) {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>e.target.classList.remove('active');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleCellMouseUp(e) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (gameStatus !== 'ready' &amp;&amp; gameStatus !== 'playing') return;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>e.target.classList.remove('active');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (gameStatus === 'ready' || gameStatus === 'playing') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>resetBtnEl.textContent = FACES.smile;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const r = parseInt(e.target.dataset.r);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const c = parseInt(e.target.dataset.c);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Left click (0) or Middle click/Both buttons simulation for chord (1/2 depending on browser, usually handled differently)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (e.button === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>handleLeftClick(r, c);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* STREAMING_CHUNK:Placing mines and calculating neighbor counts on first click...</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Place mines randomly, avoiding the first clicked cell</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function placeMines(firstR, firstC) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const config = DIFFICULTIES[currentDifficulty];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let minesToPlace = config.mines;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>while (minesToPlace &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const r = Math.floor(Math.random() * config.rows);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const c = Math.floor(Math.random() * config.cols);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Don't place on first click or if already a mine</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!board[r][c].isMine &amp;&amp; !(r === firstR &amp;&amp; c === firstC)) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>board[r][c].isMine = true;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>minesToPlace--;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Calculate neighbor counts</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let r = 0; r &lt; config.rows; r++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let c = 0; c &lt; config.cols; c++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (!board[r][c].isMine) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>board[r][c].neighborMines = countNeighborMines(r, c);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function countNeighborMines(r, c) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let count = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const config = DIFFICULTIES[currentDifficulty];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = -1; i &lt;= 1; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let j = -1; j &lt;= 1; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (i === 0 &amp;&amp; j === 0) continue;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const nr = r + i;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const nc = c + j;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (nr &gt;= 0 &amp;&amp; nr &lt; config.rows &amp;&amp; nc &gt;= 0 &amp;&amp; nc &lt; config.cols) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (board[nr][nc].isMine) count++;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return count;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* STREAMING_CHUNK:Core gameplay logic: revealing cells and handling flood fill...</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Handle Left Click (Reveal)</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleLeftClick(r, c) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const cellData = board[r][c];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (cellData.isRevealed || cellData.isFlagged) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (firstClick) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>placeMines(r, c);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>firstClick = false;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gameStatus = 'playing';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>startTimer();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>revealCell(r, c);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>checkWinCondition();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Recursive function to reveal cells (Flood fill for empty cells)</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function revealCell(r, c) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const config = DIFFICULTIES[currentDifficulty];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (r &lt; 0 || r &gt;= config.rows || c &lt; 0 || c &gt;= config.cols) return;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const cellData = board[r][c];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (cellData.isRevealed || cellData.isFlagged) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>cellData.isRevealed = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const cellEl = getCellElement(r, c);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cellEl.classList.add('revealed');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (cellData.isMine) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Game Over</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gameOver(false, r, c);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (cellData.neighborMines &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cellEl.textContent = cellData.neighborMines;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cellEl.classList.add(`num-${cellData.neighborMines}`);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Flood fill for 0 neighbor mines</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = -1; i &lt;= 1; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let j = -1; j &lt;= 1; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (i === 0 &amp;&amp; j === 0) continue;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>revealCell(r + i, c + j);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* STREAMING_CHUNK:Handling right clicks for flagging and unflagging...</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Handle Right Click (Flag)</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleRightClick(r, c) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (gameStatus !== 'ready' &amp;&amp; gameStatus !== 'playing') return;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const cellData = board[r][c];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (cellData.isRevealed) return; // Cannot flag revealed cells</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const cellEl = getCellElement(r, c);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!cellData.isFlagged) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cellData.isFlagged = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cellEl.classList.add('flag');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>minesLeft--;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cellData.isFlagged = false;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cellEl.classList.remove('flag');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>minesLeft++;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateDisplay(mineCountEl, minesLeft);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Utility to get DOM element for a specific grid coordinate</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function getCellElement(r, c) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const config = DIFFICULTIES[currentDifficulty];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const index = r * config.cols + c;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return minefieldEl.children[index];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* STREAMING_CHUNK:Game Over and Win condition checks...</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function gameOver(isWin, triggerR = null, triggerC = null) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gameStatus = isWin ? 'won' : 'lost';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stopTimer();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>resetBtnEl.textContent = isWin ? FACES.win : FACES.dead;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const config = DIFFICULTIES[currentDifficulty];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let r = 0; r &lt; config.rows; r++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let c = 0; c &lt; config.cols; c++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const cellData = board[r][c];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const cellEl = getCellElement(r, c);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (!isWin) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Reveal mines on loss</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (cellData.isMine &amp;&amp; !cellData.isFlagged) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>cellEl.classList.add('revealed', 'mine-revealed');</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (r === triggerR &amp;&amp; c === triggerC) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>cellEl.classList.add('mine', 'explode'); // Add explosion class</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>} else if (!cellData.isMine &amp;&amp; cellData.isFlagged) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>// Incorrectly flagged</p>
+<p class="p1"><span class="Apple-converted-space">                             </span>cellEl.classList.add('wrong-flag');</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// On win, flag all remaining mines and animate</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (cellData.isMine) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (!cellData.isFlagged) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>cellData.isFlagged = true;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>cellEl.classList.add('flag');</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>cellEl.classList.add('win-anim'); // Add bounce animation</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(isWin) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>minesLeft = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>updateDisplay(mineCountEl, minesLeft);</p>
+<p class="p2"><span class="Apple-converted-space">                 </span></p>
+<p class="p1"><span class="Apple-converted-space">                 </span>// Show win modal with a slight delay</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>setTimeout(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>document.getElementById('win-time').textContent = secondsElapsed;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>document.getElementById('win-modal').style.display = 'block';</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>}, 600);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function checkWinCondition() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (gameStatus !== 'playing') return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const config = DIFFICULTIES[currentDifficulty];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let revealedCount = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const totalSafeCells = (config.rows * config.cols) - config.mines;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let r = 0; r &lt; config.rows; r++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let c = 0; c &lt; config.cols; c++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (board[r][c].isRevealed) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>revealedCount++;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (revealedCount === totalSafeCells) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gameOver(true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* STREAMING_CHUNK:Timer functionality and Menu handling...</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function startTimer() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (timerInterval) clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timerInterval = setInterval(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>secondsElapsed++;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (secondsElapsed &gt; 999) secondsElapsed = 999;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateDisplay(timerEl, secondsElapsed);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function stopTimer() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (timerInterval) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>timerInterval = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Menu functions</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showMenu() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>menuModal.style.display = 'block';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function closeMenu() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>menuModal.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setDifficulty(level) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentDifficulty = level;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>closeMenu();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initGame();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setCustomDifficulty() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = parseInt(document.getElementById('custom-w').value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = parseInt(document.getElementById('custom-h').value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let m = parseInt(document.getElementById('custom-m').value);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Validate inputs and enforce limits (max 50x50 to prevent freezing)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const validW = Math.max(8, Math.min(w || 8, 50));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const validH = Math.max(8, Math.min(h || 8, 50));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const maxMines = (validW * validH) - 1; // Leave at least 1 safe cell</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const validM = Math.max(1, Math.min(m || 10, maxMines));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Update inputs with validated numbers</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('custom-w').value = validW;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('custom-h').value = validH;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('custom-m').value = validM;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Set new difficulty config</p>
+<p class="p1"><span class="Apple-converted-space">            </span>DIFFICULTIES['custom'] = { rows: validH, cols: validW, mines: validM };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentDifficulty = 'custom';</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>closeMenu();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initGame();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Initialize game on load</p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.onload = initGame;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
