@@ -12,8 +12,7 @@
             --win-light: #ffffff;
             --win-text: #000000;
             --win-blue: #000080;
-            --win-border-out: inset 2px rgba(255, 255, 255, 0.8);
-            --win-border-in: outset 2px rgba(255, 255, 255, 0.8);
+            --taskbar-h: 30px;
         }
 
         body {
@@ -23,8 +22,212 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            padding-bottom: var(--taskbar-h);
+            box-sizing: border-box;
+            overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             user-select: none; /* Prevent text selection while clicking */
+        }
+
+        /* ===== Desktop Icon (centered on the desktop area above the taskbar) ===== */
+        #desktop-icon {
+            position: fixed;
+            top: calc((100vh - var(--taskbar-h)) / 2);
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            width: 80px;
+            padding: 4px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            outline: none;
+        }
+        #desktop-icon .icon-img {
+            font-size: 32px;
+            line-height: 40px;
+            width: 40px;
+            text-align: center;
+        }
+        #desktop-icon .icon-label {
+            margin-top: 3px;
+            padding: 1px 3px;
+            font-size: 12px;
+            color: #fff;
+            text-align: center;
+            border: 1px dotted transparent;
+        }
+        #desktop-icon.selected .icon-img {
+            filter: brightness(0.6) sepia(1) hue-rotate(190deg) saturate(4);
+        }
+        #desktop-icon.selected .icon-label {
+            background-color: var(--win-blue);
+            border-color: #ffff80;
+        }
+
+        /* ===== Taskbar ===== */
+        #taskbar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: var(--taskbar-h);
+            background-color: var(--win-bg);
+            border-top: 2px solid var(--win-light);
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            padding: 0 3px;
+            gap: 4px;
+            z-index: 50;
+        }
+        /* Start button */
+        #start-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 22px;
+            padding: 0 6px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: var(--win-bg);
+            border-top: 2px solid var(--win-light);
+            border-left: 2px solid var(--win-light);
+            border-bottom: 2px solid #000;
+            border-right: 2px solid #000;
+            cursor: pointer;
+        }
+        #start-btn.open {
+            border-top: 2px solid #000;
+            border-left: 2px solid #000;
+            border-bottom: 2px solid var(--win-light);
+            border-right: 2px solid var(--win-light);
+        }
+        .taskbar-divider {
+            width: 2px;
+            height: 22px;
+            border-left: 1px solid var(--win-dark);
+            border-right: 1px solid var(--win-light);
+            box-sizing: border-box;
+        }
+
+        /* Start menu */
+        #start-menu {
+            display: none;
+            position: fixed;
+            left: 2px;
+            bottom: calc(var(--taskbar-h) - 2px);
+            background-color: var(--win-bg);
+            border-top: 2px solid var(--win-light);
+            border-left: 2px solid var(--win-light);
+            border-bottom: 2px solid #000;
+            border-right: 2px solid #000;
+            box-shadow: 1px 1px 0 var(--win-dark);
+            z-index: 60;
+        }
+        #start-menu.open { display: flex; }
+        #start-menu .menu-banner {
+            width: 22px;
+            background: linear-gradient(to top, var(--win-blue), #1084d0);
+            color: #c0c0c0;
+            font-weight: bold;
+            font-size: 15px;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            padding: 6px 2px;
+            letter-spacing: 1px;
+        }
+        #start-menu .menu-banner b { color: #fff; }
+        #start-menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 2px;
+            min-width: 180px;
+        }
+        #start-menu li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px 6px 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        #start-menu li .mi-icon { font-size: 18px; width: 22px; text-align: center; }
+        #start-menu li:hover {
+            background-color: var(--win-blue);
+            color: #fff;
+        }
+        #start-menu li.sep {
+            padding: 0;
+            margin: 3px 2px;
+            height: 0;
+            border-top: 1px solid var(--win-dark);
+            border-bottom: 1px solid var(--win-light);
+            cursor: default;
+        }
+        #start-menu li.sep:hover { background: none; }
+
+        /* "Safe to turn off" screen */
+        #shutdown-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            color: #ff8c00;
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 14px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+        }
+        #shutdown-screen.on { display: flex; }
+        #shutdown-screen small { color: #888; font-size: 12px; font-weight: normal; }
+
+        #task-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            width: 160px;
+            height: 22px;
+            padding: 0 6px;
+            font-family: inherit;
+            font-size: 12px;
+            text-align: left;
+            background-color: var(--win-bg);
+            border-top: 2px solid var(--win-light);
+            border-left: 2px solid var(--win-light);
+            border-bottom: 2px solid #000;
+            border-right: 2px solid #000;
+            cursor: pointer;
+        }
+        /* Pressed look = window is open and active */
+        #task-btn.active {
+            border-top: 2px solid #000;
+            border-left: 2px solid #000;
+            border-bottom: 2px solid var(--win-light);
+            border-right: 2px solid var(--win-light);
+            font-weight: bold;
+            background-image: repeating-conic-gradient(#fff 0% 25%, var(--win-bg) 0% 50%);
+            background-size: 2px 2px;
+        }
+        #task-btn.hidden { display: none; }
+        #tray-clock {
+            margin-left: auto;
+            height: 22px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            border-top: 1px solid var(--win-dark);
+            border-left: 1px solid var(--win-dark);
+            border-bottom: 1px solid var(--win-light);
+            border-right: 1px solid var(--win-light);
         }
 
         /* Window Container Styling */
@@ -37,7 +240,33 @@
             box-shadow: 2px 2px 0px #000;
             padding: 2px;
             display: inline-block;
+            position: relative;
+            z-index: 2;             /* sits above the desktop icon */
+            scale: 1;              /* window size (cycled by the □ button) */
+            transition: scale 0.15s ease-out;
         }
+
+        /* Window open / close / minimize animations */
+        @keyframes win-minimize {
+            from { transform: translate(0, 0) scale(1); opacity: 1; }
+            to   { transform: translate(-35vw, 45vh) scale(0.1); opacity: 0; }
+        }
+        @keyframes win-restore {
+            from { transform: translate(-35vw, 45vh) scale(0.1); opacity: 0; }
+            to   { transform: translate(0, 0) scale(1); opacity: 1; }
+        }
+        @keyframes win-close {
+            from { transform: scale(1); opacity: 1; }
+            to   { transform: scale(0.85); opacity: 0; }
+        }
+        @keyframes win-open {
+            from { transform: scale(0.85); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        #game-window.anim-minimize { animation: win-minimize 0.22s ease-in forwards; }
+        #game-window.anim-restore  { animation: win-restore 0.22s ease-out; }
+        #game-window.anim-close    { animation: win-close 0.15s ease-in forwards; }
+        #game-window.anim-open     { animation: win-open 0.15s ease-out; }
 
         /* Window Title Bar */
         #title-bar {
@@ -52,8 +281,10 @@
             margin-bottom: 5px;
         }
 
+        .title-buttons { display: flex; }
         .title-buttons button {
             background-color: var(--win-bg);
+            color: #000;
             border-top: 1px solid var(--win-light);
             border-left: 1px solid var(--win-light);
             border-bottom: 1px solid var(--win-dark);
@@ -185,29 +416,23 @@
         .cell.revealed {
             border: 1px solid #7b7b7b;
             background-color: var(--win-bg);
-            /* Reset inset border */
-            border-top-color: #7b7b7b;
-            border-left-color: #7b7b7b;
-            border-bottom-color: #7b7b7b;
-            border-right-color: #7b7b7b;
         }
-        
+
         /* Specific styling for when a cell is clicked but not yet released */
         .cell.active {
              border: 1px solid #7b7b7b;
         }
 
         /* Number Colors */
-        .num-1 { color: #0000FF; } /* Blue */
-        .num-2 { color: #008000; } /* Green */
-        .num-3 { color: #FF0000; } /* Red */
-        .num-4 { color: #000080; } /* Navy */
-        .num-5 { color: #800000; } /* Maroon */
-        .num-6 { color: #008080; } /* Teal */
-        .num-7 { color: #000000; } /* Black */
-        .num-8 { color: #808080; } /* Gray */
+        .num-1 { color: #0000FF; }
+        .num-2 { color: #008000; }
+        .num-3 { color: #FF0000; }
+        .num-4 { color: #000080; }
+        .num-5 { color: #800000; }
+        .num-6 { color: #008080; }
+        .num-7 { color: #000000; }
+        .num-8 { color: #808080; }
 
-        /* Mine icon using simple unicode or shapes for retro feel */
         .mine {
             background-color: red; /* Highlight triggered mine */
         }
@@ -215,7 +440,7 @@
             content: '💣';
             font-size: 10px;
         }
-        
+
         .mine-revealed::after {
              content: '💣';
              font-size: 10px;
@@ -226,7 +451,7 @@
             content: '🚩';
             font-size: 10px;
         }
-        
+
         .wrong-flag::after {
             content: '❌';
             font-size: 10px;
@@ -364,14 +589,20 @@
     </style>
 </head>
 <body>
-    <div id="game-window">
+    <!-- Desktop Icon (double-click to open / restore) -->
+    <div id="desktop-icon" tabindex="0" title="Click to open">
+        <div class="icon-img">💣</div>
+        <div class="icon-label">Minesweeper</div>
+    </div>
+
+    <div id="game-window" style="display:none">
         <!-- Title Bar -->
         <div id="title-bar">
             <span>💣 Minesweeper</span>
             <div class="title-buttons">
-                <button aria-label="Minimize">_</button>
-                <button aria-label="Maximize">□</button>
-                <button aria-label="Close">x</button>
+                <button id="btn-minimize" aria-label="Minimize" title="Minimize">_</button>
+                <button id="btn-maximize" aria-label="Maximize" title="Size: 1x">□</button>
+                <button id="btn-close" aria-label="Close" title="Close">x</button>
             </div>
         </div>
 
@@ -390,7 +621,6 @@
 
         <!-- Minefield Area -->
         <div id="minefield-container">
-            <!-- oncontextmenu="return false;" prevents standard right-click menu -->
             <div id="minefield" oncontextmenu="return false;">
                 <!-- Cells will be generated here -->
             </div>
@@ -403,7 +633,7 @@
         <button onclick="setDifficulty('beginner')">Beginner (9x9, 10 Mines)</button><br>
         <button onclick="setDifficulty('intermediate')">Intermediate (16x16, 40 Mines)</button><br>
         <button onclick="setDifficulty('expert')">Expert (30x16, 99 Mines)</button><br>
-        
+
         <div class="custom-inputs">
             <strong>Custom:</strong><br>
             <label>Width:</label><input type="number" id="custom-w" value="20" min="8" max="50"><br>
@@ -422,6 +652,34 @@
         <p style="font-size: 14px; margin-bottom: 15px;">기록: <span id="win-time">0</span>초</p>
         <button onclick="document.getElementById('win-modal').style.display='none'; initGame();">새 게임</button>
         <button onclick="document.getElementById('win-modal').style.display='none';">닫기</button>
+    </div>
+
+    <!-- Taskbar -->
+    <div id="taskbar">
+        <button id="start-btn">🖥️ Start</button>
+        <div class="taskbar-divider"></div>
+        <button id="task-btn" class="hidden">💣 Minesweeper</button>
+        <div id="tray-clock">00:00</div>
+    </div>
+
+    <!-- Start Menu -->
+    <div id="start-menu">
+        <div class="menu-banner"><b>Retro</b>98</div>
+        <ul>
+            <li data-action="open"><span class="mi-icon">💣</span>Minesweeper</li>
+            <li class="sep"></li>
+            <li data-action="beginner"><span class="mi-icon">🟢</span>Beginner (9×9)</li>
+            <li data-action="intermediate"><span class="mi-icon">🟡</span>Intermediate (16×16)</li>
+            <li data-action="expert"><span class="mi-icon">🔴</span>Expert (30×16)</li>
+            <li class="sep"></li>
+            <li data-action="shutdown"><span class="mi-icon">⏻</span>Shut Down...</li>
+        </ul>
+    </div>
+
+    <!-- Shutdown screen -->
+    <div id="shutdown-screen">
+        <div>이제 컴퓨터를 꺼도 안전합니다.</div>
+        <small>클릭하면 다시 시작합니다</small>
     </div>
 
     <script>
@@ -446,6 +704,11 @@
         const timerEl = document.getElementById('timer');
         const resetBtnEl = document.getElementById('reset-btn');
         const menuModal = document.getElementById('custom-menu-modal');
+        const winModal = document.getElementById('win-modal');
+        const gameWindow = document.getElementById('game-window');
+        const taskBtn = document.getElementById('task-btn');
+        const desktopIcon = document.getElementById('desktop-icon');
+        const maximizeBtn = document.getElementById('btn-maximize');
 
         // Faces for reset button
         const FACES = {
@@ -461,9 +724,9 @@
             firstClick = true;
             minesLeft = config.mines;
             secondsElapsed = 0;
-            
+
             // Hide Win Modal if open
-            document.getElementById('win-modal').style.display = 'none';
+            winModal.style.display = 'none';
 
             // Reset UI
             resetBtnEl.textContent = FACES.smile;
@@ -481,7 +744,7 @@
                         c: c,
                         isMine: false,
                         isRevealed: false,
-                        isFlagged: false, // FLAG STATE
+                        isFlagged: false,
                         neighborMines: 0
                     });
                 }
@@ -489,6 +752,7 @@
             }
 
             renderBoard();
+            ensureFit(); // new board size may no longer fit the current zoom
         }
 
         function updateDisplay(element, value) {
@@ -506,13 +770,9 @@
         function renderBoard() {
             const config = DIFFICULTIES[currentDifficulty];
             minefieldEl.innerHTML = '';
-            
-            // Set CSS Grid layout dynamically based on columns
+
             minefieldEl.style.gridTemplateColumns = `repeat(${config.cols}, 16px)`;
-            
-            // Adjust container width to fit grid perfectly plus borders
-            const containerWidth = (config.cols * 16);
-            minefieldEl.style.width = `${containerWidth}px`;
+            minefieldEl.style.width = `${config.cols * 16}px`;
 
             for (let r = 0; r < config.rows; r++) {
                 for (let c = 0; c < config.cols; c++) {
@@ -520,15 +780,13 @@
                     cell.classList.add('cell');
                     cell.dataset.r = r;
                     cell.dataset.c = c;
-                    
-                    // Mouse events
+
                     cell.addEventListener('mousedown', handleCellMouseDown);
                     cell.addEventListener('mouseup', handleCellMouseUp);
                     cell.addEventListener('mouseleave', handleCellMouseLeave);
-                    
-                    // RIGHT CLICK (FLAG) EVENT LISTENER
+
                     cell.addEventListener('contextmenu', (e) => {
-                        e.preventDefault(); // Prevent default browser context menu
+                        e.preventDefault();
                         handleRightClick(r, c);
                     });
 
@@ -539,15 +797,13 @@
 
         function handleCellMouseDown(e) {
             if (gameStatus !== 'ready' && gameStatus !== 'playing') return;
-            // Left click only
             if (e.button === 0) {
                 resetBtnEl.textContent = FACES.ooh;
                 const r = parseInt(e.target.dataset.r);
                 const c = parseInt(e.target.dataset.c);
                 const cellData = board[r][c];
-                // Do not show press effect if flagged
                 if (!cellData.isRevealed && !cellData.isFlagged) {
-                     e.target.classList.add('active'); 
+                     e.target.classList.add('active');
                 }
             }
         }
@@ -558,17 +814,13 @@
 
         function handleCellMouseUp(e) {
             if (gameStatus !== 'ready' && gameStatus !== 'playing') return;
-            
+
             e.target.classList.remove('active');
-            
-            if (gameStatus === 'ready' || gameStatus === 'playing') {
-                resetBtnEl.textContent = FACES.smile;
-            }
+            resetBtnEl.textContent = FACES.smile;
 
             const r = parseInt(e.target.dataset.r);
             const c = parseInt(e.target.dataset.c);
 
-            // Left click (0) execution
             if (e.button === 0) {
                 handleLeftClick(r, c);
             }
@@ -582,14 +834,12 @@
                 const r = Math.floor(Math.random() * config.rows);
                 const c = Math.floor(Math.random() * config.cols);
 
-                // Don't place on first click or if already a mine
                 if (!board[r][c].isMine && !(r === firstR && c === firstC)) {
                     board[r][c].isMine = true;
                     minesToPlace--;
                 }
             }
 
-            // Calculate neighbor counts
             for (let r = 0; r < config.rows; r++) {
                 for (let c = 0; c < config.cols; c++) {
                     if (!board[r][c].isMine) {
@@ -617,8 +867,6 @@
 
         function handleLeftClick(r, c) {
             const cellData = board[r][c];
-
-            // Ignore if revealed or FLAGGED
             if (cellData.isRevealed || cellData.isFlagged) return;
 
             if (firstClick) {
@@ -635,7 +883,7 @@
         function revealCell(r, c) {
             const config = DIFFICULTIES[currentDifficulty];
             if (r < 0 || r >= config.rows || c < 0 || c >= config.cols) return;
-            
+
             const cellData = board[r][c];
             if (cellData.isRevealed || cellData.isFlagged) return;
 
@@ -663,13 +911,12 @@
 
         function handleRightClick(r, c) {
             if (gameStatus !== 'ready' && gameStatus !== 'playing') return;
-            
+
             const cellData = board[r][c];
-            if (cellData.isRevealed) return; // Cannot flag revealed cells
+            if (cellData.isRevealed) return;
 
             const cellEl = getCellElement(r, c);
 
-            // Toggle Flag
             if (!cellData.isFlagged) {
                 cellData.isFlagged = true;
                 cellEl.classList.add('flag');
@@ -679,14 +926,12 @@
                 cellEl.classList.remove('flag');
                 minesLeft++;
             }
-            // Update UI
             updateDisplay(mineCountEl, minesLeft);
         }
 
         function getCellElement(r, c) {
             const config = DIFFICULTIES[currentDifficulty];
-            const index = r * config.cols + c;
-            return minefieldEl.children[index];
+            return minefieldEl.children[r * config.cols + c];
         }
 
         function gameOver(isWin, triggerR = null, triggerC = null) {
@@ -704,30 +949,30 @@
                         if (cellData.isMine && !cellData.isFlagged) {
                             cellEl.classList.add('revealed', 'mine-revealed');
                             if (r === triggerR && c === triggerC) {
-                                cellEl.classList.add('mine', 'explode'); 
+                                cellEl.classList.add('mine', 'explode');
                             }
                         } else if (!cellData.isMine && cellData.isFlagged) {
-                             cellEl.classList.add('wrong-flag'); // Flagged wrongly
+                             cellEl.classList.add('wrong-flag');
                         }
                     } else {
-                        // Win animation: force flags on all mines
                         if (cellData.isMine) {
                             if (!cellData.isFlagged) {
                                 cellData.isFlagged = true;
                                 cellEl.classList.add('flag');
                             }
-                            cellEl.classList.add('win-anim'); 
+                            cellEl.classList.add('win-anim');
                         }
                     }
                 }
             }
-            if(isWin) {
+            if (isWin) {
                  minesLeft = 0;
                  updateDisplay(mineCountEl, minesLeft);
-                 
+
                  setTimeout(() => {
+                     if (windowState !== 'open') return; // don't pop up over a hidden window
                      document.getElementById('win-time').textContent = secondsElapsed;
-                     document.getElementById('win-modal').style.display = 'block';
+                     winModal.style.display = 'block';
                  }, 600);
             }
         }
@@ -740,9 +985,7 @@
 
             for (let r = 0; r < config.rows; r++) {
                 for (let c = 0; c < config.cols; c++) {
-                    if (board[r][c].isRevealed) {
-                        revealedCount++;
-                    }
+                    if (board[r][c].isRevealed) revealedCount++;
                 }
             }
 
@@ -783,7 +1026,7 @@
 
             const validW = Math.max(8, Math.min(w || 8, 50));
             const validH = Math.max(8, Math.min(h || 8, 50));
-            const maxMines = (validW * validH) - 1; 
+            const maxMines = (validW * validH) - 1;
             const validM = Math.max(1, Math.min(m || 10, maxMines));
 
             document.getElementById('custom-w').value = validW;
@@ -792,10 +1035,210 @@
 
             DIFFICULTIES['custom'] = { rows: validH, cols: validW, mines: validM };
             currentDifficulty = 'custom';
-            
+
             closeMenu();
             initGame();
         }
+
+        /* =========================================================
+           Window management: close (x), maximize (□), minimize (_)
+           ========================================================= */
+        let windowState = 'closed'; // open | minimized | closed — starts closed; open from the desktop icon
+        const ANIM_CLASSES = ['anim-minimize', 'anim-restore', 'anim-close', 'anim-open'];
+
+        // Play one window animation, then run `done` (ignores child animations like flag-bounce)
+        function playWindowAnim(name, done) {
+            gameWindow.classList.remove(...ANIM_CLASSES);
+            void gameWindow.offsetWidth; // restart animation
+            gameWindow.classList.add(name);
+            function onEnd(e) {
+                if (e.target !== gameWindow) return;
+                gameWindow.removeEventListener('animationend', onEnd);
+                gameWindow.classList.remove(name);
+                if (done) done();
+            }
+            gameWindow.addEventListener('animationend', onEnd);
+        }
+
+        function hideModals() {
+            menuModal.style.display = 'none';
+            winModal.style.display = 'none';
+        }
+
+        // x : close window and reset the game
+        function closeWindow() {
+            if (windowState === 'closed') return;
+            windowState = 'closed';
+            stopTimer();
+            hideModals();
+            taskBtn.classList.add('hidden');
+            playWindowAnim('anim-close', () => {
+                if (windowState !== 'closed') return;
+                gameWindow.style.display = 'none';
+                initGame(); // fresh game next time it's opened
+            });
+        }
+
+        // _ : hide window, keep the game exactly as it is (timer paused)
+        function minimizeWindow() {
+            if (windowState !== 'open') return;
+            windowState = 'minimized';
+            stopTimer();
+            hideModals();
+            taskBtn.classList.remove('active');
+            playWindowAnim('anim-minimize', () => {
+                if (windowState !== 'minimized') return;
+                gameWindow.style.display = 'none';
+            });
+        }
+
+        // Bring a minimized window back where it was
+        function restoreWindow() {
+            if (windowState !== 'minimized') return;
+            windowState = 'open';
+            gameWindow.style.display = 'inline-block';
+            taskBtn.classList.add('active');
+            playWindowAnim('anim-restore');
+            if (gameStatus === 'playing') startTimer(); // resume from secondsElapsed
+        }
+
+        // Open from the desktop icon
+        function openWindow() {
+            if (windowState === 'minimized') { restoreWindow(); return; }
+            if (windowState === 'open') return;
+            windowState = 'open';
+            gameWindow.style.display = 'inline-block';
+            taskBtn.classList.remove('hidden');
+            taskBtn.classList.add('active');
+            ensureFit();
+            playWindowAnim('anim-open');
+        }
+
+        // □ : cycle window size 1x → 1.5x → 2x → 1x (skips sizes that don't fit the screen)
+        const ZOOM_LEVELS = [1, 1.5, 2];
+        let zoomIndex = 0;
+
+        function fitsAt(z) {
+            const maxW = window.innerWidth - 16;
+            const maxH = window.innerHeight - 30 - 16; // minus taskbar
+            return gameWindow.offsetWidth * z <= maxW && gameWindow.offsetHeight * z <= maxH;
+        }
+
+        function applyZoom() {
+            const z = ZOOM_LEVELS[zoomIndex];
+            gameWindow.style.scale = z;
+            maximizeBtn.title = `Size: ${z}x`;
+        }
+
+        function cycleZoom() {
+            if (windowState !== 'open') return;
+            for (let i = 1; i <= ZOOM_LEVELS.length; i++) {
+                const idx = (zoomIndex + i) % ZOOM_LEVELS.length;
+                if (idx === 0 || fitsAt(ZOOM_LEVELS[idx])) {
+                    zoomIndex = idx;
+                    break;
+                }
+            }
+            applyZoom();
+        }
+
+        // Shrink back if the current size no longer fits (new difficulty, window resize)
+        function ensureFit() {
+            if (gameWindow.style.display === 'none') return;
+            while (zoomIndex > 0 && !fitsAt(ZOOM_LEVELS[zoomIndex])) zoomIndex--;
+            applyZoom();
+        }
+
+        document.getElementById('btn-close').addEventListener('click', closeWindow);
+        document.getElementById('btn-minimize').addEventListener('click', minimizeWindow);
+        maximizeBtn.addEventListener('click', cycleZoom);
+        // Double-clicking the title bar also cycles size, like old Windows
+        document.getElementById('title-bar').addEventListener('dblclick', (e) => {
+            if (!e.target.closest('.title-buttons')) cycleZoom();
+        });
+
+        // Taskbar button: minimize if open, restore if minimized
+        taskBtn.addEventListener('click', () => {
+            if (windowState === 'open') minimizeWindow();
+            else if (windowState === 'minimized') restoreWindow();
+        });
+
+        // Desktop icon: one click opens the game (or restores it if minimized)
+        desktopIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeStartMenu();
+            desktopIcon.classList.add('selected');
+            openWindow();
+        });
+        desktopIcon.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') openWindow();
+        });
+
+        /* ----- Start menu ----- */
+        const startBtn = document.getElementById('start-btn');
+        const startMenu = document.getElementById('start-menu');
+        const shutdownScreen = document.getElementById('shutdown-screen');
+
+        function closeStartMenu() {
+            startMenu.classList.remove('open');
+            startBtn.classList.remove('open');
+        }
+
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const willOpen = !startMenu.classList.contains('open');
+            startMenu.classList.toggle('open', willOpen);
+            startBtn.classList.toggle('open', willOpen);
+        });
+        startMenu.addEventListener('click', (e) => e.stopPropagation());
+
+        startMenu.querySelectorAll('li[data-action]').forEach((item) => {
+            item.addEventListener('click', () => {
+                const action = item.dataset.action;
+                closeStartMenu();
+                if (action === 'open') {
+                    openWindow();
+                } else if (action === 'shutdown') {
+                    shutDown();
+                } else {
+                    // A difficulty: start a new game at that level and show the window
+                    setDifficulty(action);
+                    openWindow();
+                }
+            });
+        });
+
+        // Shut Down: close the game and show the classic "safe to turn off" screen
+        function shutDown() {
+            if (windowState !== 'closed') {
+                windowState = 'closed';
+                stopTimer();
+                hideModals();
+                gameWindow.classList.remove(...ANIM_CLASSES);
+                gameWindow.style.display = 'none';
+                taskBtn.classList.add('hidden');
+                initGame();
+            }
+            shutdownScreen.classList.add('on');
+        }
+        shutdownScreen.addEventListener('click', () => shutdownScreen.classList.remove('on'));
+
+        // Clicking anywhere else closes the Start menu and deselects the icon
+        document.addEventListener('click', () => {
+            closeStartMenu();
+            desktopIcon.classList.remove('selected');
+        });
+
+        window.addEventListener('resize', ensureFit);
+
+        // Taskbar clock
+        function updateClock() {
+            const d = new Date();
+            document.getElementById('tray-clock').textContent =
+                d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+        updateClock();
+        setInterval(updateClock, 10000);
 
         // Initialize on load
         window.onload = initGame;
